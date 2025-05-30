@@ -78,7 +78,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
             }
         }
 
-        public async Task<Company> GetByIdAsync(int companyId)
+        public async Task<Company> GetCompanyByIdAsync(int companyId)
         {
             try
             {

@@ -27,6 +27,7 @@ class Program
             .AddScoped<IStudentRepository, StudentRepository>()
             .AddScoped<IStudentService, StudentService>()
             .AddScoped<ICompanyRepository, CompanyRepository>()
+            .AddScoped<ICompanyService, CompanyService>()
             .BuildServiceProvider();
 
         //var studentServiceTest = serviceProvider.GetRequiredService<IStudentService>();
@@ -88,7 +89,7 @@ class Program
         //    Console.WriteLine("Wystąpił błąd podczas dodawania nowego studenta.");
         //}
 
-        var companyServiceTest = serviceProvider.GetRequiredService<ICompanyRepository>();
+        var companyServiceTest = serviceProvider.GetRequiredService<ICompanyService>();
         var newCompany = new Company
         {
             Name = "Tech Solutions",
@@ -110,7 +111,7 @@ class Program
         //}
 
 
-        List<Company> companies = await companyServiceTest.GetAllAsync();
+        List<Company>? companies = await companyServiceTest.GetAllCompanyAsync();
         if (companies != null && companies.Count > 0)
         {
             Console.WriteLine($"Znaleziono {companies.Count} firm:");

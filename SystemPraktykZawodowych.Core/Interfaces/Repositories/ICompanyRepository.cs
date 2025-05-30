@@ -8,6 +8,6 @@ public interface ICompanyRepository
     public Task<bool> AddAsync(Company company);
     public Task<bool> UpdateAsync(Company company);
     public Task<bool> DeleteAsync(int companyId);
-    public Task<Company> GetByIdAsync(int companyId);
+    public Task<Company> GetCompanyByIdAsync(int companyId);
     
 }
