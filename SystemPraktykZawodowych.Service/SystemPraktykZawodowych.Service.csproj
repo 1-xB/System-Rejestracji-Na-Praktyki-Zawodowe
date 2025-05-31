@@ -10,4 +10,14 @@
         <ProjectReference Include="..\SystemPraktykZawodowych.Core\SystemPraktykZawodowych.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.Extensions.Configuration.Abstractions">
+        <HintPath>..\..\..\..\.nuget\packages\microsoft.extensions.configuration.abstractions\10.0.0-preview.4.25258.110\lib\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="PdfSharpCore" Version="1.3.67" />
+    </ItemGroup>
+
 </Project>
