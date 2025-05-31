@@ -30,7 +30,6 @@ namespace SystemPraktykZawodowych.Data.Repositories
                                     supervisor_name AS SupervisorName, 
                                     address AS Address, 
                                     max_internships AS MaxInternships, 
-                                    current_internships AS CurrentInternships 
                                    FROM Companies";
                     var companies = await conn.QueryAsync<Company>(sql);
                     return companies.ToList();
@@ -49,8 +48,8 @@ namespace SystemPraktykZawodowych.Data.Repositories
             {
                 using (IDbConnection conn = DbConnection.CreateConnection())
                 {
-                    string sql = @"INSERT INTO Companies (name, supervisor_name, address, max_internships, current_internships)
-                            VALUES (@Name, @SupervisorName, @Address, @MaxInternships, @CurrentInternships)";
+                    string sql = @"INSERT INTO Companies (name, supervisor_name, address, max_internships)
+                            VALUES (@Name, @SupervisorName, @Address, @MaxInternships)";
                     var result = await conn.ExecuteAsync(sql, company);
                     return result > 0;
                 }
@@ -104,7 +103,6 @@ namespace SystemPraktykZawodowych.Data.Repositories
                               supervisor_name = @SupervisorName,
                               address = @Address,
                               max_internships = @MaxInternships,
-                              current_internships = @CurrentInternships
                               ";
                 var result = await conn.ExecuteAsync(sql, company);
                 return result > 0;

@@ -13,6 +13,5 @@ namespace SystemPraktykZawodowych.Core.Models
         public string SupervisorName { get; set; }
         public string Address { get; set; }
         public int MaxInternships { get; set; }
-        public int CurrentInternships { get; set; }
     }
 }
