@@ -43,10 +43,10 @@ namespace SystemPraktykZawodowych.ConsoleApp
 
                 .BuildServiceProvider();
 
-            // Получаем нужные сервисы/репозитории из DI
+           // Get the required services/repositories from DI
             var registrationRepository = serviceProvider.GetRequiredService<IRegistrationRepository>();
 
-            // Получить все регистрации
+            // Get all registrations
             var allRegistrations = await registrationRepository.GetAllAsync();
             if (allRegistrations != null)
             {
@@ -60,8 +60,8 @@ namespace SystemPraktykZawodowych.ConsoleApp
                 Console.WriteLine("No registrations found.");
             }
 
-            // Получить регистрацию по Id
-            int someId = 1;
+            // Get registration by Id
+            int someId = 4;
             var registrationById = await registrationRepository.GetRegistrationByIdAsync(someId);
             if (registrationById != null)
             {
@@ -72,22 +72,22 @@ namespace SystemPraktykZawodowych.ConsoleApp
                 Console.WriteLine($"No registration found with ID {someId}");
             }
 
-            // Обновить регистрацию
-            if (registrationById != null)
-            {
-                registrationById.AgreementGenerated = 1; // Например, поменяли флаг
-                registrationById.AgreementGeneratedDate = DateTime.UtcNow;
+            // Update registration
+            // if (registrationById != null)
+            // {
+            //     registrationById.AgreementGenerated = 1; // For example, changed the flag
+            //     registrationById.AgreementGeneratedDate = DateTime.UtcNow;
+            //
+            //     bool updateResult = await registrationRepository.UpdateAsync(registrationById);
+            //     Console.WriteLine(updateResult ? "Registration updated successfully." : "Failed to update registration.");
+            // }
+            //
+            // // Delete registration by Id
+            // int idToDelete = 2;
+            // bool deleteResult = await registrationRepository.DeleteAsync(idToDelete);
+            // Console.WriteLine(deleteResult ? $"Registration with ID {idToDelete} deleted." : $"Failed to delete registration with ID {idToDelete}.");
 
-                bool updateResult = await registrationRepository.UpdateAsync(registrationById);
-                Console.WriteLine(updateResult ? "Registration updated successfully." : "Failed to update registration.");
-            }
-
-            // Удалить регистрацию по Id
-            int idToDelete = 2;
-            bool deleteResult = await registrationRepository.DeleteAsync(idToDelete);
-            Console.WriteLine(deleteResult ? $"Registration with ID {idToDelete} deleted." : $"Failed to delete registration with ID {idToDelete}.");
-
-            Console.ReadLine(); // чтобы консоль не закрывалась сразу
+            Console.ReadLine(); // so that the console does not close immediately
         }
     }
 }

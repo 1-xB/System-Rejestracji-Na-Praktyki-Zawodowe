@@ -44,7 +44,14 @@ namespace SystemPraktykZawodowych.Data.Repositories
             {
                 using (IDbConnection conn = dbConnection.CreateConnection())
                 {
-                    string sql = @"SELECT * FROM Registrations WHERE registration_id = @registrationId";
+                    string sql = @"SELECT 
+                                    registration_id AS RegistrationId,
+                                    student_id AS StudentId,
+                                    company_id AS CompanyId,
+                                    registration_date AS RegistrationDate,
+                                    agreement_generated AS AgreementGenerated,
+                                    agreement_generated_date AS AgreementGeneratedDate
+                                    FROM Registrations WHERE registration_id = @registrationId";
                     var registration = await conn.QueryFirstOrDefaultAsync<Registration>(sql, new { registrationId });
                     return registration;
                 }
