@@ -7,26 +7,26 @@ namespace SystemPraktykZawodowych.Data.Repositories
 {
     public class RegistrationRepository : IRegistrationRepository
     {
-        private DatabaseConnection DbConnection { get; }
+        private DatabaseConnection dbConnection { get; }
 
         public RegistrationRepository(DatabaseConnection databaseConnection)
         {
-            DbConnection = databaseConnection;
+            dbConnection = databaseConnection;
         }
 
         public async Task<List<Registration>?> GetAllAsync()
         {
             try
             {
-                using (IDbConnection conn = DbConnection.CreateConnection())
+                using (IDbConnection conn = dbConnection.CreateConnection())
                 {
                     string sql = @"SELECT 
-                                    registration_id AS Registration_id,
-                                    student_id AS Student_id,
-                                    company_id AS Company_id,
-                                    registration_date AS Registration_date,
-                                    agreement_generated AS Agreement_generated,
-                                    agreement_generated_date AS Agreement_generated_date
+                                    registration_id AS RegistrationId,
+                                    student_id AS StudentId,
+                                    company_id AS CompanyId,
+                                    registration_date AS RegistrationDate,
+                                    agreement_generated AS AgreementGenerated,
+                                    agreement_generated_date AS AgreementGeneratedDate
                                    FROM Registrations";
                     var registrations = await conn.QueryAsync<Registration>(sql);
                     return registrations.ToList();
@@ -42,10 +42,10 @@ namespace SystemPraktykZawodowych.Data.Repositories
         {
             try
             {
-                using (IDbConnection conn = DbConnection.CreateConnection())
+                using (IDbConnection conn = dbConnection.CreateConnection())
                 {
-                    string sql = @"SELECT * FROM Registrations WHERE registration_id = @RegistrationId";
-                    var registration = await conn.QueryFirstOrDefaultAsync<Registration>(sql, new { RegistrationId = registrationId });
+                    string sql = @"SELECT * FROM Registrations WHERE registration_id = @registrationId";
+                    var registration = await conn.QueryFirstOrDefaultAsync<Registration>(sql, new { registrationId });
                     return registration;
                 }
             }
@@ -59,10 +59,10 @@ namespace SystemPraktykZawodowych.Data.Repositories
         {
             try
             {
-                using (IDbConnection conn = DbConnection.CreateConnection())
+                using (IDbConnection conn = dbConnection.CreateConnection())
                 {
                     string sql = @"INSERT INTO Registrations (student_id, company_id, registration_date, agreement_generated, agreement_generated_date)
-                                   VALUES (@Student_id, @Company_id, @Registration_date, @Agreement_generated, @Agreement_generated_date)";
+                                   VALUES (@StudentId, @CompanyId, @RegistrationDate, @AgreementGenerated, @AgreementGeneratedDate)";
                     var result = await conn.ExecuteAsync(sql, registration);
                     return result > 0;
                 }
@@ -77,15 +77,15 @@ namespace SystemPraktykZawodowych.Data.Repositories
         {
             try
             {
-                using (IDbConnection conn = DbConnection.CreateConnection())
+                using (IDbConnection conn = dbConnection.CreateConnection())
                 {
                     string sql = @"UPDATE Registrations
-                                   SET student_id = @Student_id,
-                                       company_id = @Company_id,
-                                       registration_date = @Registration_date,
-                                       agreement_generated = @Agreement_generated,
-                                       agreement_generated_date = @Agreement_generated_date
-                                   WHERE registration_id = @Registration_id";
+                                   SET student_id = @StudentId,
+                                       company_id = @CompanyId,
+                                       registration_date = @RegistrationDate,
+                                       agreement_generated = @AgreementGenerated,
+                                       agreement_generated_date = @AgreementGeneratedDate
+                                   WHERE registration_id = @RegistrationId";
                     var result = await conn.ExecuteAsync(sql, registration);
                     return result > 0;
                 }
@@ -100,10 +100,10 @@ namespace SystemPraktykZawodowych.Data.Repositories
         {
             try
             {
-                using (IDbConnection conn = DbConnection.CreateConnection())
+                using (IDbConnection conn = dbConnection.CreateConnection())
                 {
-                    string sql = @"DELETE FROM Registrations WHERE registration_id = @RegistrationId";
-                    var result = await conn.ExecuteAsync(sql, new { RegistrationId = registrationId });
+                    string sql = @"DELETE FROM Registrations WHERE registration_id = @registrationId";
+                    var result = await conn.ExecuteAsync(sql, new { registrationId });
                     return result > 0;
                 }
             }
@@ -114,5 +114,3 @@ namespace SystemPraktykZawodowych.Data.Repositories
         }
     }
 }
-
-

@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SystemPraktykZawodowych.Core.Interfaces.Repositories;
-using SystemPraktykZawodowych.Core.Interfaces.Services;
 using SystemPraktykZawodowych.Core.Models;
-using SystemPraktykZawodowych.Data;
 using SystemPraktykZawodowych.Data.Repositories;
+using SystemPraktykZawodowych.Data;
+using SystemPraktykZawodowych.Core.Interfaces.Services;
 using SystemPraktykZawodowych.Service.Services;
 using SystemPraktykZawodowych.Core.Interfaces;
 
@@ -52,7 +52,7 @@ namespace SystemPraktykZawodowych.ConsoleApp
             {
                 foreach (var reg in allRegistrations)
                 {
-                    Console.WriteLine($"Registration ID: {reg.registration_id}, Student ID: {reg.student_id}, Company ID: {reg.company_id}");
+                    Console.WriteLine($"Registration ID: {reg.RegistrationId}, Student ID: {reg.StudentId}, Company ID: {reg.CompanyId}");
                 }
             }
             else
@@ -65,7 +65,7 @@ namespace SystemPraktykZawodowych.ConsoleApp
             var registrationById = await registrationRepository.GetRegistrationByIdAsync(someId);
             if (registrationById != null)
             {
-                Console.WriteLine($"Found registration with ID {someId}: Student ID = {registrationById.student_id}, Company ID = {registrationById.company_id}");
+                Console.WriteLine($"Found registration with ID {someId}: Student ID = {registrationById.StudentId}, Company ID = {registrationById.CompanyId}");
             }
             else
             {
@@ -75,8 +75,8 @@ namespace SystemPraktykZawodowych.ConsoleApp
             // Обновить регистрацию
             if (registrationById != null)
             {
-                registrationById.agreement_generated = 1; // Например, поменяли флаг
-                registrationById.agreement_generated_date = DateTime.UtcNow;
+                registrationById.AgreementGenerated = 1; // Например, поменяли флаг
+                registrationById.AgreementGeneratedDate = DateTime.UtcNow;
 
                 bool updateResult = await registrationRepository.UpdateAsync(registrationById);
                 Console.WriteLine(updateResult ? "Registration updated successfully." : "Failed to update registration.");
@@ -87,7 +87,7 @@ namespace SystemPraktykZawodowych.ConsoleApp
             bool deleteResult = await registrationRepository.DeleteAsync(idToDelete);
             Console.WriteLine(deleteResult ? $"Registration with ID {idToDelete} deleted." : $"Failed to delete registration with ID {idToDelete}.");
 
-            Console.ReadLine();
+            Console.ReadLine(); // чтобы консоль не закрывалась сразу
         }
     }
 }
