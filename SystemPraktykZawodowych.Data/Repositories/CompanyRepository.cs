@@ -29,7 +29,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
                                     name AS Name, 
                                     supervisor_name AS SupervisorName, 
                                     address AS Address, 
-                                    max_internships AS MaxInternships, 
+                                    max_internships AS MaxInternships 
                                    FROM Companies";
                     var companies = await conn.QueryAsync<Company>(sql);
                     return companies.ToList();
