@@ -7,6 +7,9 @@ using SystemPraktykZawodowych.Data;
 using SystemPraktykZawodowych.Core.Interfaces.Services;
 using SystemPraktykZawodowych.Service.Services;
 using SystemPraktykZawodowych.Core.Interfaces;
+using SystemPraktykZawodowych.ConsoleApp;  // чтобы увидеть RegistrationConsole
+using RegistrationConsoleApp;
+
 
 namespace SystemPraktykZawodowych.ConsoleApp
 {
@@ -41,53 +44,17 @@ namespace SystemPraktykZawodowych.ConsoleApp
                 // PDF Generator
                 .AddScoped<IAgreementGeneratorService, AgreementGeneratorService>()
 
+                // Registration Console — добавляем!
+                .AddScoped <ConsoleApplication>()
+
                 .BuildServiceProvider();
 
-           // Get the required services/repositories from DI
-            var registrationRepository = serviceProvider.GetRequiredService<IRegistrationRepository>();
+            var console = serviceProvider.GetRequiredService<ConsoleApplication>();
 
-            // Get all registrations
-            var allRegistrations = await registrationRepository.GetAllAsync();
-            if (allRegistrations != null)
-            {
-                foreach (var reg in allRegistrations)
-                {
-                    Console.WriteLine($"Registration ID: {reg.RegistrationId}, Student ID: {reg.StudentId}, Company ID: {reg.CompanyId}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("No registrations found.");
-            }
 
-            // Get registration by Id
-            int someId = 4;
-            var registrationById = await registrationRepository.GetRegistrationByIdAsync(someId);
-            if (registrationById != null)
-            {
-                Console.WriteLine($"Found registration with ID {someId}: Student ID = {registrationById.StudentId}, Company ID = {registrationById.CompanyId}");
-            }
-            else
-            {
-                Console.WriteLine($"No registration found with ID {someId}");
-            }
+            await console.RunAsync();
 
-            // Update registration
-            // if (registrationById != null)
-            // {
-            //     registrationById.AgreementGenerated = 1; // For example, changed the flag
-            //     registrationById.AgreementGeneratedDate = DateTime.UtcNow;
-            //
-            //     bool updateResult = await registrationRepository.UpdateAsync(registrationById);
-            //     Console.WriteLine(updateResult ? "Registration updated successfully." : "Failed to update registration.");
-            // }
-            //
-            // // Delete registration by Id
-            // int idToDelete = 2;
-            // bool deleteResult = await registrationRepository.DeleteAsync(idToDelete);
-            // Console.WriteLine(deleteResult ? $"Registration with ID {idToDelete} deleted." : $"Failed to delete registration with ID {idToDelete}.");
-
-            Console.ReadLine(); // so that the console does not close immediately
+            Console.ReadLine();
         }
     }
 }
