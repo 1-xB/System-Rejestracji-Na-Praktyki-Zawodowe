@@ -35,6 +35,11 @@ public class RegistrationService : IRegistrationService
         {
             return (false, "The student with the given ID does not exist");
         }
+        
+        if (registration.AgreementGenerated == 1)
+        {
+            return (false, "The agreement has already been generated for this registration");
+        }
 
         try
         {

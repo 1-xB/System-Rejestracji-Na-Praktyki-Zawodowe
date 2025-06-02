@@ -66,7 +66,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
             {
                 using (IDbConnection conn = DbConnection.CreateConnection())
                 {
-                    string sql = @"DELETE FROM Companies WHERE student_id = @CompanyId";
+                    string sql = @"DELETE FROM Companies WHERE company_id = @CompanyId";
                     var result = await conn.ExecuteAsync(sql, new { CompanyId = companyId });
                     return result > 0;
                 }

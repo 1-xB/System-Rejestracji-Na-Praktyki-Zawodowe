@@ -76,7 +76,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
             }
             catch (Exception)
             {
-                throw;
+                return false;
             }
         }
 
@@ -99,7 +99,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
             }
             catch (Exception)
             {
-                throw;
+                return false;
             }
         }
 
@@ -116,7 +116,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
             }
             catch (Exception)
             {
-                throw;
+                return false;
             }
         }
     }

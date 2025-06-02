@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using SystemPraktykZawodowych.Core.Interfaces.Repositories;
+using SystemPraktykZawodowych.Core.Interfaces.Services;
 using SystemPraktykZawodowych.Core.Models;
 
 namespace RegistrationConsoleApp
@@ -8,10 +9,20 @@ namespace RegistrationConsoleApp
     public class ConsoleApplication
     {
         private readonly IRegistrationRepository _repository;
+        private readonly IRegistrationService _registrationService;
+        private readonly IStudentService _studentService;
+        private readonly ICompanyService _companyService;
+        
 
-        public ConsoleApplication(IRegistrationRepository repository)
+        public ConsoleApplication(IRegistrationRepository repository, 
+                                  IRegistrationService registrationService,
+                                  IStudentService studentService,
+                                  ICompanyService companyService)
         {
             _repository = repository;
+            _registrationService = registrationService;
+            _studentService = studentService;
+            _companyService = companyService;
         }
 
         public async Task RunAsync()
@@ -79,6 +90,12 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid student ID.");
                             break;
                         }
+                        if (await _studentService.GetStudentByIdAsync(studentId) == null)
+                        {
+                            Console.WriteLine("Student not found.");
+                            break;
+                        }
+                        
                         newReg.StudentId = studentId;
 
                         Console.Write("Company ID: ");
@@ -88,14 +105,54 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid company ID.");
                             break;
                         }
+                        var company = await _companyService.GetCompanyByIdAsync(companyId);
+                        if (company == null)
+                        {
+                            Console.WriteLine("Company not found.");
+                            break;
+                        }
+                        
+                        // TODO : Sprawdzenie, czy firma ma wolne miejsca na praktyki
+                        
                         newReg.CompanyId = companyId;
 
                         newReg.RegistrationDate = DateTime.UtcNow;
                         newReg.AgreementGenerated = 0;
-                        newReg.AgreementGeneratedDate = DateTime.UtcNow; 
+                        newReg.AgreementGeneratedDate = null; // Umowa nie jest jeszcze wygenerowana
 
-                        var added = await _repository.AddAsync(newReg);
-                        Console.WriteLine(added ? "Registration added." : "Error adding registration.");
+                        var added = await _registrationService.AddRegistrationAsync(newReg);
+                        if (added)
+                        {
+                            Console.WriteLine("Registration added successfully.");
+                            Console.WriteLine($"ID: {newReg.RegistrationId}, Student: {newReg.StudentId}, Company: {newReg.CompanyId}, Registration Date: {newReg.RegistrationDate}");
+                            Console.WriteLine("Sending agreement...");
+                            
+                            var registrations = await _registrationService.GetAllRegistrationsAsync();
+                            var newRegistration = registrations?
+                                .Where(r => r.StudentId == newReg.StudentId && r.CompanyId == newReg.CompanyId)
+                                .FirstOrDefault();
+
+                            if (newRegistration != null)
+                            {
+                                var result = await _registrationService.SendAgreementAsync(newRegistration.RegistrationId);
+                                if (result.Success)
+                                {
+                                    Console.WriteLine("Agreement sent successfully.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Error sending agreement: {result.ErrorMessage}");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Error finding the newly added registration.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error adding registration. Make sure that the same registration does not already exist in the database");
+                        }
                         break;
 
                     case "4":
@@ -120,6 +177,12 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid student ID.");
                             break;
                         }
+                        
+                        if (await _studentService.GetStudentByIdAsync(updStudentId) == null)
+                        {
+                            Console.WriteLine("Student not found.");
+                            break;
+                        }
 
                         Console.Write("New company ID: ");
                         var updCompanyInput = Console.ReadLine();
@@ -129,23 +192,42 @@ namespace RegistrationConsoleApp
                             break;
                         }
                         
-                        // TODO : Dodać sprawdzanie czy student i firma istnieją
+                        if (await _companyService.GetCompanyByIdAsync(updCompanyId) == null)
+                        {
+                            Console.WriteLine("Company not found.");
+                            break;
+                        }
+                        
+                        // TODO : Sprawdzenie, czy firma ma wolne miejsca na praktyki
+                        
                         
                         existing.StudentId = updStudentId;
                         existing.CompanyId = updCompanyId;
                         existing.RegistrationDate = DateTime.UtcNow;
-                        
-                        // TODO 
-                        // Console - Chcesz wygenerować nową umowę? (y/n)
-                        // y- generujemy nową umowę, i nie zmieniamy existing.AgreementGenerated = 0; i existing.AgreementGeneratedDate = null;, poniewaz zmienia się 
-                        // ono w SendAgreementAsyn w RegistrationService.
-                        // n - nie generujemy nowej umowy, i resetujemy existing.AgreementGenerated = 0; i existing.AgreementGeneratedDate = null;
-                        
-                        
                         existing.AgreementGenerated = 0; 
-                        existing.AgreementGeneratedDate = null; // resetujemy dane umowy, poniewaz moze zmienic sie student lub firma
+                        existing.AgreementGeneratedDate = null; 
 
                         var updated = await _repository.UpdateAsync(existing);
+                        if (updated)
+                        {
+                            Console.WriteLine("Registration updated successfully.");
+                            Console.WriteLine($"ID: {existing.RegistrationId}, Student: {existing.StudentId}, Company: {existing.CompanyId}, Registration Date: {existing.RegistrationDate}");
+                            Console.WriteLine("Sending agreement...");
+                            
+                            var result = await _registrationService.SendAgreementAsync(existing.RegistrationId);
+                            if (result.Success)
+                            {
+                                Console.WriteLine("Agreement sent successfully.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Error sending agreement: {result.ErrorMessage}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error updating registration.");
+                        }
                         Console.WriteLine(updated ? "Registration updated." : "Error updating registration.");
                         break;
 
