@@ -83,7 +83,11 @@ namespace SystemPraktykZawodowych.Data.Repositories
             {
                 using (IDbConnection conn = DbConnection.CreateConnection())
                 {
-                    string sql = @"SELECT * FROM Companies WHERE company_id = @CompanyId";
+                    string sql = @"SELECT company_id AS Id, 
+                                    name AS Name, 
+                                    supervisor_name AS SupervisorName, 
+                                    address AS Address, 
+                                    max_internships AS MaxInternships  FROM Companies WHERE company_id = @CompanyId";
                     var company = await conn.QueryFirstOrDefaultAsync<Company>(sql, new { CompanyId = companyId });
                     return company;
                 }
