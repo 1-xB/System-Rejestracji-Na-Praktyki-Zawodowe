@@ -25,6 +25,8 @@ namespace RegistrationConsoleApp
                 Console.WriteLine("3. Add registration");
                 Console.WriteLine("4. Update registration");
                 Console.WriteLine("5. Delete registration");
+                // Console.WriteLine("6. Send agreement"); // TODO: Implementacja wysyłania umowy, czyli wyswietlenie listy rejestracji, i mozliwość wyboru rejestracji, której umowę chcemy wysłać.
+                // TODO: Obsługa firm i studentow
                 Console.WriteLine("0. Exit");
                 Console.Write("Choice: ");
 
@@ -126,12 +128,22 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid company ID.");
                             break;
                         }
-
+                        
+                        // TODO : Dodać sprawdzanie czy student i firma istnieją
+                        
                         existing.StudentId = updStudentId;
                         existing.CompanyId = updCompanyId;
                         existing.RegistrationDate = DateTime.UtcNow;
-                        existing.AgreementGenerated = 1; 
-                        existing.AgreementGeneratedDate = DateTime.UtcNow;
+                        
+                        // TODO 
+                        // Console - Chcesz wygenerować nową umowę? (y/n)
+                        // y- generujemy nową umowę, i nie zmieniamy existing.AgreementGenerated = 0; i existing.AgreementGeneratedDate = null;, poniewaz zmienia się 
+                        // ono w SendAgreementAsyn w RegistrationService.
+                        // n - nie generujemy nowej umowy, i resetujemy existing.AgreementGenerated = 0; i existing.AgreementGeneratedDate = null;
+                        
+                        
+                        existing.AgreementGenerated = 0; 
+                        existing.AgreementGeneratedDate = null; // resetujemy dane umowy, poniewaz moze zmienic sie student lub firma
 
                         var updated = await _repository.UpdateAsync(existing);
                         Console.WriteLine(updated ? "Registration updated." : "Error updating registration.");
