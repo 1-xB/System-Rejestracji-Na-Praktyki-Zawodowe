@@ -7,6 +7,7 @@ public interface IRegistrationService
 {
     public Task<List<Registration>?> GetAllRegistrationsAsync();
     public Task<bool> AddRegistrationAsync(Registration registration);
+    public Task<(bool Success, string ErrorMessage)> SendAgreementAsync(int registrationId);
     public Task<bool> UpdateRegistrationAsync(Registration registration);
     public Task<bool> DeleteRegistrationAsync(int registrationId);
     public Task<Registration?> GetRegistrationByIdAsync(int registrationId);

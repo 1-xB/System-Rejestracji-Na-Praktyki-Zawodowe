@@ -42,12 +42,10 @@ namespace SystemPraktykZawodowych.ConsoleApp
                 .AddScoped<IAgreementGeneratorService, AgreementGeneratorService>()
 
                 .BuildServiceProvider();
+            
 
-           // Get the required services/repositories from DI
-            var registrationRepository = serviceProvider.GetRequiredService<IRegistrationRepository>();
-
-            // Get all registrations
-            var allRegistrations = await registrationRepository.GetAllAsync();
+            var registrationService = serviceProvider.GetRequiredService<IRegistrationService>();
+            var allRegistrations = await registrationService.GetAllRegistrationsAsync();
             if (allRegistrations != null)
             {
                 foreach (var reg in allRegistrations)
@@ -59,35 +57,56 @@ namespace SystemPraktykZawodowych.ConsoleApp
             {
                 Console.WriteLine("No registrations found.");
             }
-
-            // Get registration by Id
-            int someId = 4;
-            var registrationById = await registrationRepository.GetRegistrationByIdAsync(someId);
-            if (registrationById != null)
+            
+            var newRegistration = new Registration
             {
-                Console.WriteLine($"Found registration with ID {someId}: Student ID = {registrationById.StudentId}, Company ID = {registrationById.CompanyId}");
+                StudentId = 5, // Example student ID
+                CompanyId = 1, // Example company ID
+            };
+            
+            bool addResult = await registrationService.AddRegistrationAsync(newRegistration);
+            if (addResult)
+            {
+                Console.WriteLine("Registration added successfully.");
             }
             else
             {
-                Console.WriteLine($"No registration found with ID {someId}");
+                Console.WriteLine("Failed to add registration.");
+            }
+            
+            // Email sending example
+            var AllRegistrations = await registrationService.GetAllRegistrationsAsync();
+            if (AllRegistrations != null && AllRegistrations.Count > 0)
+            {
+                foreach (var registration in AllRegistrations)
+                {
+                    Console.WriteLine($"Registration ID: {registration.RegistrationId}, Student ID: {registration.StudentId}, Company ID: {registration.CompanyId}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No registrations available to send agreements.");
             }
 
-            // Update registration
-            // if (registrationById != null)
-            // {
-            //     registrationById.AgreementGenerated = 1; // For example, changed the flag
-            //     registrationById.AgreementGeneratedDate = DateTime.UtcNow;
-            //
-            //     bool updateResult = await registrationRepository.UpdateAsync(registrationById);
-            //     Console.WriteLine(updateResult ? "Registration updated successfully." : "Failed to update registration.");
-            // }
-            //
-            // // Delete registration by Id
-            // int idToDelete = 2;
-            // bool deleteResult = await registrationRepository.DeleteAsync(idToDelete);
-            // Console.WriteLine(deleteResult ? $"Registration with ID {idToDelete} deleted." : $"Failed to delete registration with ID {idToDelete}.");
-
-            Console.ReadLine(); // so that the console does not close immediately
+            Console.WriteLine("Do jakiej rejestracji chcesz wysłać umowę? (Podaj ID rejestracji)");
+            if (int.TryParse(Console.ReadLine(), out int registrationId))
+            {
+                var sendAgreementResult = await registrationService.SendAgreementAsync(registrationId);
+                if (sendAgreementResult.Success)
+                {
+                    Console.WriteLine("Agreement sent successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to send agreement: {sendAgreementResult.ErrorMessage}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid registration ID.");
+            }
+            
+            
         }
     }
 }
