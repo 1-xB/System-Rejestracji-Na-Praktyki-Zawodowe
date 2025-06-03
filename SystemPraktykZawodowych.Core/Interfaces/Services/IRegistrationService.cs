@@ -11,4 +11,6 @@ public interface IRegistrationService
     public Task<bool> UpdateRegistrationAsync(Registration registration);
     public Task<bool> DeleteRegistrationAsync(int registrationId);
     public Task<Registration?> GetRegistrationByIdAsync(int registrationId);
+    public Task<int> CountRegistrationsByCompanyIdAsync(int companyId);
+    public Task<List<Registration>?> GetRegistrationsByStudentIdAsync(int studentId);
 }

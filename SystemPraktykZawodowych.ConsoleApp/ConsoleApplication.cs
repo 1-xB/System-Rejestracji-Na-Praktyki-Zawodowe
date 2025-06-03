@@ -36,7 +36,7 @@ namespace RegistrationConsoleApp
                 Console.WriteLine("3. Add registration");
                 Console.WriteLine("4. Update registration");
                 Console.WriteLine("5. Delete registration");
-                // Console.WriteLine("6. Send agreement"); // TODO: Implementacja wysyłania umowy, czyli wyswietlenie listy rejestracji, i mozliwość wyboru rejestracji, której umowę chcemy wysłać.
+                Console.WriteLine("6. Send agreement");
                 // TODO: Obsługa firm i studentow
                 Console.WriteLine("0. Exit");
                 Console.Write("Choice: ");
@@ -69,7 +69,7 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid ID input.");
                             break;
                         }
-                        var reg = await _repository.GetRegistrationByIdAsync(id);
+                        var reg = await _repository.GetByIdAsync(id);
                         if (reg != null)
                         {
                             Console.WriteLine($"ID: {reg.RegistrationId}, Student: {reg.StudentId}, Company: {reg.CompanyId}, Registration Date: {reg.RegistrationDate}");
@@ -96,8 +96,6 @@ namespace RegistrationConsoleApp
                             break;
                         }
                         
-                        newReg.StudentId = studentId;
-
                         Console.Write("Company ID: ");
                         var companyInput = Console.ReadLine();
                         if (!int.TryParse(companyInput, out int companyId))
@@ -112,10 +110,15 @@ namespace RegistrationConsoleApp
                             break;
                         }
                         
-                        // TODO : Sprawdzenie, czy firma ma wolne miejsca na praktyki
+                        
+                        if (await HasAvailableInternshipSlots(company))
+                        {
+                            Console.WriteLine("The company has reached the maximum number of internships.");
+                            break;
+                        }
                         
                         newReg.CompanyId = companyId;
-
+                        newReg.StudentId = studentId;
                         newReg.RegistrationDate = DateTime.UtcNow;
                         newReg.AgreementGenerated = 0;
                         newReg.AgreementGeneratedDate = null; // Umowa nie jest jeszcze wygenerowana
@@ -124,7 +127,7 @@ namespace RegistrationConsoleApp
                         if (added)
                         {
                             Console.WriteLine("Registration added successfully.");
-                            Console.WriteLine($"ID: {newReg.RegistrationId}, Student: {newReg.StudentId}, Company: {newReg.CompanyId}, Registration Date: {newReg.RegistrationDate}");
+                            Console.WriteLine($"Student: {newReg.StudentId}, Company: {newReg.CompanyId}, Registration Date: {newReg.RegistrationDate}");
                             Console.WriteLine("Sending agreement...");
                             
                             var registrations = await _registrationService.GetAllRegistrationsAsync();
@@ -163,7 +166,7 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid registration ID.");
                             break;
                         }
-                        var existing = await _repository.GetRegistrationByIdAsync(updId);
+                        var existing = await _repository.GetByIdAsync(updId);
                         if (existing == null)
                         {
                             Console.WriteLine("Registration not found.");
@@ -191,16 +194,20 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid company ID.");
                             break;
                         }
-                        
-                        if (await _companyService.GetCompanyByIdAsync(updCompanyId) == null)
+                        var comp = await _companyService.GetCompanyByIdAsync(updCompanyId);
+                        if (comp == null)
                         {
                             Console.WriteLine("Company not found.");
                             break;
                         }
-                        
-                        // TODO : Sprawdzenie, czy firma ma wolne miejsca na praktyki
-                        
-                        
+
+                        if (await HasAvailableInternshipSlots(comp))
+                        {
+                            Console.WriteLine("The company has reached the maximum number of internships.");
+                            break;
+                        }
+
+
                         existing.StudentId = updStudentId;
                         existing.CompanyId = updCompanyId;
                         existing.RegistrationDate = DateTime.UtcNow;
@@ -242,9 +249,15 @@ namespace RegistrationConsoleApp
                         var deleted = await _repository.DeleteAsync(registrationId);
                         Console.WriteLine(deleted ? "Registration deleted." : "Error deleting registration.");
                         break;
-
+                    
+                    case "6":
+                        await SendAgreementAsync(); // TODO : Możemy w kazdym case, obsłużyć to przez metodę, bo jest czytelniej.
+                        break;
+                    
                     case "0":
                         return;
+                    
+                        
 
                     default:
                         Console.WriteLine("Invalid choice.");
@@ -254,6 +267,79 @@ namespace RegistrationConsoleApp
                 Console.WriteLine("\nPress any key to continue...");
                 Console.ReadKey();
             }
+        }
+        
+        private async Task SendAgreementAsync()
+        {
+            Console.WriteLine("Enter your student ID:");
+            string studentIdInput = Console.ReadLine();
+            
+            if (!int.TryParse(studentIdInput, out int studentId))
+            {
+                Console.WriteLine("Invalid student ID.");
+                return;
+            }
+
+            var student = await _studentService.GetStudentByIdAsync(studentId);
+            if (student == null)
+            {
+                Console.WriteLine("Student not found.");
+                return;
+            }
+            
+            var registrations = await _registrationService.GetRegistrationsByStudentIdAsync(studentId);
+            if (registrations == null || registrations.Count == 0)
+            {
+                Console.WriteLine("No registrations found for this student.");
+                return;
+            }
+            Console.WriteLine("Select a registration to send the agreement:");
+            for (int i = 0; i < registrations.Count; i++)
+            {
+                var reg = registrations[i];
+                Console.WriteLine($"ID: {reg.RegistrationId}, Company ID: {reg.CompanyId}, Registration Date: {reg.RegistrationDate}");
+            }
+            
+            Console.Write("Enter the registration id: ");
+            string regIdInput = Console.ReadLine();
+            if (!int.TryParse(regIdInput, out int registrationId))
+            {
+                Console.WriteLine("Invalid registration ID.");
+                return;
+            }
+            var registration = await _registrationService.GetRegistrationByIdAsync(registrationId);
+            if (registration == null)
+            {
+                Console.WriteLine("Registration not found.");
+                return;
+            }
+            if (registration.AgreementGenerated == 1)
+            {
+                Console.WriteLine("Agreement has already been generated for this registration.");
+                return;
+            }
+            
+            Console.WriteLine("Sending agreement...");
+            
+            var result = await _registrationService.SendAgreementAsync(registration.RegistrationId);
+            if (result.Success)
+            {
+                Console.WriteLine("Agreement sent successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Error sending agreement: {result.ErrorMessage}");
+            }
+        }
+        private async Task<bool> HasAvailableInternshipSlots(Company comp)
+        {
+            int internshipsCount = await _registrationService.CountRegistrationsByCompanyIdAsync(comp.Id);
+            if (internshipsCount >= comp.MaxInternships)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

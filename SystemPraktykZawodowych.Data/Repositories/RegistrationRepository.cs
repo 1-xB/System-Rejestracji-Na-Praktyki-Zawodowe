@@ -38,7 +38,7 @@ namespace SystemPraktykZawodowych.Data.Repositories
             }
         }
 
-        public async Task<Registration?> GetRegistrationByIdAsync(int registrationId)
+        public async Task<Registration?> GetByIdAsync(int registrationId)
         {
             try
             {
@@ -117,6 +117,47 @@ namespace SystemPraktykZawodowych.Data.Repositories
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public async Task<int> CountByCompanyIdAsync(int companyId)
+        {
+            try
+            {
+                using (IDbConnection conn = dbConnection.CreateConnection())
+                {
+                    string sql = @"SELECT COUNT(*) FROM Registrations WHERE company_id = @companyId";
+                    var count = await conn.ExecuteScalarAsync<int>(sql, new { companyId });
+                    return count;
+                }
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<List<Registration>?> GetByStudentIdAsync(int studentId)
+        {
+            try
+            {
+                string sql = @"SELECT 
+                               registration_id AS RegistrationId,
+                               student_id AS StudentId,
+                               company_id AS CompanyId,
+                               registration_date AS RegistrationDate,
+                               agreement_generated AS AgreementGenerated,
+                               agreement_generated_date AS AgreementGeneratedDate
+                               FROM Registrations WHERE student_id = @studentId";
+                using (IDbConnection conn = dbConnection.CreateConnection()) 
+                {
+                    var registrations = await conn.QueryAsync<Registration>(sql, new { studentId });
+                    return registrations.ToList();
+                }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

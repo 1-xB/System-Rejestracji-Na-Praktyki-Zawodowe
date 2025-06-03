@@ -68,6 +68,9 @@ public class RegistrationService : IRegistrationService
 
     public async Task<bool> DeleteRegistrationAsync(int registrationId) => await RegistrationRepository.DeleteAsync(registrationId);
 
-    public async Task<Registration?> GetRegistrationByIdAsync(int registrationId) => await RegistrationRepository.GetRegistrationByIdAsync(registrationId);
+    public async Task<Registration?> GetRegistrationByIdAsync(int registrationId) => await RegistrationRepository.GetByIdAsync(registrationId);
+    
+    public async Task<int> CountRegistrationsByCompanyIdAsync(int companyId) => await RegistrationRepository.CountByCompanyIdAsync(companyId);
+    public async Task<List<Registration>?> GetRegistrationsByStudentIdAsync(int studentId) => await RegistrationRepository.GetByStudentIdAsync(studentId);
 }
 

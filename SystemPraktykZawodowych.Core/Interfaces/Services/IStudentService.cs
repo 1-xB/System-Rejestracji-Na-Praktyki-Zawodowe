@@ -9,4 +9,5 @@ public interface IStudentService
     public Task<bool> UpdateStudentAsync(Student student);
     public Task<bool> DeleteStudentAsync(int studentId);
     public Task<Student?> GetStudentByIdAsync(int studentId);
+    
 }
