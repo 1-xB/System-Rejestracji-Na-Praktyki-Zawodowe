@@ -8,7 +8,6 @@ namespace RegistrationConsoleApp
 {
     public class ConsoleApplication
     {
-        private readonly IRegistrationRepository _repository;
         private readonly IRegistrationService _registrationService;
         private readonly IStudentService _studentService;
         private readonly ICompanyService _companyService;
@@ -19,7 +18,6 @@ namespace RegistrationConsoleApp
                                   IStudentService studentService,
                                   ICompanyService companyService)
         {
-            _repository = repository;
             _registrationService = registrationService;
             _studentService = studentService;
             _companyService = companyService;
@@ -47,7 +45,7 @@ namespace RegistrationConsoleApp
                 switch (choice)
                 {
                     case "1":
-                        var all = await _repository.GetAllAsync();
+                        var all = await _registrationService.GetAllRegistrationsAsync();
                         if (all == null || all.Count == 0)
                         {
                             Console.WriteLine("No registrations found.");
@@ -69,7 +67,7 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid ID input.");
                             break;
                         }
-                        var reg = await _repository.GetByIdAsync(id);
+                        var reg = await _registrationService.GetRegistrationByIdAsync(id);
                         if (reg != null)
                         {
                             Console.WriteLine($"ID: {reg.RegistrationId}, Student: {reg.StudentId}, Company: {reg.CompanyId}, Registration Date: {reg.RegistrationDate}");
@@ -90,7 +88,9 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid student ID.");
                             break;
                         }
-                        if (await _studentService.GetStudentByIdAsync(studentId) == null)
+                        
+                        var student = await _studentService.GetStudentByIdAsync(studentId);
+                        if (student == null)
                         {
                             Console.WriteLine("Student not found.");
                             break;
@@ -128,7 +128,7 @@ namespace RegistrationConsoleApp
                         {
                             Console.WriteLine("Registration added successfully.");
                             Console.WriteLine($"Student: {newReg.StudentId}, Company: {newReg.CompanyId}, Registration Date: {newReg.RegistrationDate}");
-                            Console.WriteLine("Sending agreement...");
+                            Console.WriteLine($"Sending agreement to {student.Email} ...");
                             
                             var registrations = await _registrationService.GetAllRegistrationsAsync();
                             var newRegistration = registrations?
@@ -166,7 +166,7 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid registration ID.");
                             break;
                         }
-                        var existing = await _repository.GetByIdAsync(updId);
+                        var existing = await _registrationService.GetRegistrationByIdAsync(updId);
                         if (existing == null)
                         {
                             Console.WriteLine("Registration not found.");
@@ -180,8 +180,8 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid student ID.");
                             break;
                         }
-                        
-                        if (await _studentService.GetStudentByIdAsync(updStudentId) == null)
+                        var studentById = await _studentService.GetStudentByIdAsync(updStudentId);
+                        if (studentById == null)
                         {
                             Console.WriteLine("Student not found.");
                             break;
@@ -214,12 +214,12 @@ namespace RegistrationConsoleApp
                         existing.AgreementGenerated = 0; 
                         existing.AgreementGeneratedDate = null; 
 
-                        var updated = await _repository.UpdateAsync(existing);
+                        var updated = await _registrationService.UpdateRegistrationAsync(existing);
                         if (updated)
                         {
                             Console.WriteLine("Registration updated successfully.");
                             Console.WriteLine($"ID: {existing.RegistrationId}, Student: {existing.StudentId}, Company: {existing.CompanyId}, Registration Date: {existing.RegistrationDate}");
-                            Console.WriteLine("Sending agreement...");
+                            Console.WriteLine($"Sending agreement to {studentById.Email}...");
                             
                             var result = await _registrationService.SendAgreementAsync(existing.RegistrationId);
                             if (result.Success)
@@ -246,7 +246,7 @@ namespace RegistrationConsoleApp
                             Console.WriteLine("Invalid registration ID.");
                             break;
                         }
-                        var deleted = await _repository.DeleteAsync(registrationId);
+                        var deleted = await _registrationService.DeleteRegistrationAsync(registrationId);
                         Console.WriteLine(deleted ? "Registration deleted." : "Error deleting registration.");
                         break;
                     
