@@ -73,6 +73,6 @@ Aby zarejestrować studenta na praktyki:
 
 - C# / .NET 9.0
 - Microsoft SQL Server
-- Dapper (ORM)
+- Dapper
 - PdfSharpCore (generowanie dokumentów PDF)
 - Dependency Injection

@@ -37,7 +37,6 @@ namespace RegistrationConsoleApp
                 Console.WriteLine("6. Send agreement");
                 Console.WriteLine("7. Manage Students");
                 Console.WriteLine("8. Manage Companies");
-                // TODO: Obsługa firm i studentow
                 Console.WriteLine("0. Exit");
                 Console.Write("Choice: ");
 
@@ -253,7 +252,7 @@ namespace RegistrationConsoleApp
                         break;
                     
                     case "6":
-                        await SendAgreementAsync(); // TODO : Możemy w kazdym case, obsłużyć to przez metodę, bo jest czytelniej.
+                        await SendAgreementAsync(); 
                         break;
                     case "7":
                         await ManageStudentsAsync();
