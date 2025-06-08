@@ -18,7 +18,6 @@ public class DatabaseConnection
 
     public IDbConnection CreateConnection()
     {
-        Console.WriteLine("Connecting to database...");
         return CreateConnectionWithRetry();
     }
 

@@ -107,7 +107,7 @@ public class StudentRepository : IStudentRepository
         {
             using (IDbConnection conn = DbConnection.CreateConnection())
             {
-                string sql = @"SELECT student_id as StudentId, 
+                string sql = @"SELECT student_id as Id, 
                                       first_name as FirstName, 
                                       last_name as LastName, 
                                       class as Class, 
